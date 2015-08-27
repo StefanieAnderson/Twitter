@@ -1,0 +1,192 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug 26 22:55:29 2015
+
+@author: Stef
+"""
+
+
+import pandas as pd
+import numpy as np 
+import seaborn as sns
+from pylab import savefig
+import matplotlib.pyplot as plt
+import random
+from sklearn import preprocessing
+from sklearn.feature_extraction import DictVectorizer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn import metrics
+from sklearn.feature_extraction import DictVectorizer as DV
+from sklearn.preprocessing import StandardScaler
+from sklearn.grid_search import GridSearchCV,RandomizedSearchCV
+from scipy.stats import randint, uniform
+from sklearn.metrics import mean_squared_error
+from sklearn.datasets import load_boston
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.grid_search import GridSearchCV
+from sklearn.cross_validation import train_test_split
+
+
+train  = pd.read_csv('train.csv')
+
+print (train.head())
+
+
+y = train.FOLLOW
+train.drop('FOLLOW',axis=1, inplace=True)
+    
+
+X_train = train
+#X_test = test
+
+columns = train.columns
+#test_ind =test.index
+
+X_train = np.array(X_train)
+#X_test = np.array(X_test)
+
+
+                        ########################
+                        #                      #
+                        #       Variables      #
+                        #                      #
+                        ########################    
+      
+
+DO_PLOT_CORRELATION = False
+DO_CORR_PLOT_COLOR = False
+DO_PLOT_HISTOGRAM = False
+DO_PAIRPLOT = True
+
+
+'''
+
+    #Labelencode
+
+
+    #DO_LABELENCODE_CATEGORIES:
+    # label encode the categorical variables
+
+for i in range(X_train.shape[1]):
+    if type(X_train[1,i]) is str:
+        lbl = preprocessing.LabelEncoder()
+        lbl.fit(list(X_train[:,i]) )            # list(X_test[:,i]))
+        X_train[:,i] = lbl.transform(X_train[:,i])
+        #X_test[:,i] = lbl.transform(X_test[:,i])
+            
+    print ("y.shape",y.shape)
+    print ("X_train.shape",X_train.shape)
+    #print ("X_test.shape new",X_test.shape)
+    #print (idx.shape)
+
+    
+X_train = X_train.astype(float)
+#X_test = X_test.astype(float)
+
+
+   # print_Separador()
+
+'''
+
+
+
+    
+            ########################
+            #                      #
+            #     Visualization    #
+            #                      #
+            ########################    
+    
+
+    
+if DO_PLOT_CORRELATION:
+    #train = pd.read_csv('train.csv',nrows=1000)
+    train.drop(['ID'],1,inplace=True)
+    columns = train.dtypes[train.dtypes == 'object'].keys()
+                # train = train.ix[:1000]
+        
+        
+                # for column in columns:
+                # lbl = preprocessing.LabelEncoder()
+                # train[column] = lbl.fit_transform(train[column])
+        
+        
+    sns.pairplot(train, hue="FOLLOW", diag_kind="kde")
+    savefig("plot-correlation.png")
+
+
+if DO_CORR_PLOT_COLOR:
+    
+    #train = pd.read_csv('train.csv',nrows=1000)
+    train.drop(['ID'],1,inplace=True)
+    sns.corrplot(train,annot=False,diag_names=False)
+    savefig("Corrplot_Colors.png")
+
+
+
+
+if DO_PLOT_HISTOGRAM:
+    train.drop(['ID'],1,inplace=True)
+    train['ACCOUNT_NAME'] = pd.factorize(train['ACCOUNT_NAME'])[0]
+    train['SCREEN_NAME'] = pd.factorize(train['SCREEN_NAME'])[0]
+            # simple yes/no
+    train['FOLLOWERS'] = pd.factorize(train['FOLLOWERS'])[0]
+    train['FOLLOWINGS'] = pd.factorize(train['FOLLOWINGS'])[0]
+    train['FOLLOWERS_FOLLOWING_RATIO'] = pd.factorize(train['FOLLOWERS_FOLLOWING_RATIO'])[0]
+    train['TWEETS'] = pd.factorize(train['TWEETS'])[0]
+    train['KEYWORD_PRESENT'] = pd.factorize(train['KEYWORD_PRESENT'])[0]
+    train['KLOUT_SCORE'] = pd.factorize(train['KLOUT_SCORE'])[0]
+    train['ACCOUNT_OLDNESS'] = pd.factorize(train['ACCOUNT_OLDNESS'])[0]
+    train['VERIFIED'] = pd.factorize(train['VERIFIED'])[0]
+    train['FAVOURITES_COUNT'] = pd.factorize(train['FAVOURITES_COUNT'])[0]
+    
+    train['DEFAULT_PROFILE'] = pd.factorize(train['DEFAULT_PROFILE'])[0]
+    train['GEO_ENABLED'] = pd.factorize(train['GEO_ENABLED'])[0]
+    train['PROTECTED'] = pd.factorize(train['PROTECTED'])[0]
+    train['NOTIFICATIONS'] = pd.factorize(train['NOTIFICATIONS'])[0]
+    train['DEFAULT_PROFILE_IMAGE'] = pd.factorize(train['DEFAULT_PROFILE_IMAGE'])[0]
+    #train['FOLLOW'] = pd.factorize(train['FOLLOW'])[0] 
+   
+    
+    fig = plt.figure(figsize=(15, 12))
+    sns.set(style="ticks", color_codes=True)
+    
+    
+        # loop over all vars (total: 34)
+    for i in range(1, train.shape[1]):
+        plt.subplot(6, 6, i)
+        f = plt.gca()
+        f.axes.get_yaxis().set_visible(False)
+            # f.axes.set_ylim([0, train.shape[0]])
+    
+    vals = np.size(train.iloc[:, i].unique())
+    if vals < 10:
+        bins = vals
+        plt.savefig("histogram-distribution.png")
+                
+    else:
+        vals = 10
+        
+        plt.hist(train.iloc[:, i], bins=30, color='#3F5D7D')
+    
+        plt.tight_layout()
+        plt.savefig("histogram-distribution.png")
+        
+
+    
+if DO_PAIRPLOT:
+    '''
+    #%matplotlib inline
+    sns.pairplot(train, x_vars=X_train, y_vars=y, size=7, aspect=0.7; kind'reg')
+    print ('pairplot')
+    savefig("Pairplot.png")
+    '''
+    
+    import seaborn as sns; sns.set(style="ticks", color_codes=True)
+    g = sns.pairplot(train)
+    savefig("Pairplot.png")
+
+
