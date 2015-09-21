@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Aug 28 16:30:35 2015
-
-@author: sanderson
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Created on Thu Aug 27 16:15:20 2015
 
 @author: Stef
@@ -20,8 +13,7 @@ import matplotlib.pyplot as plt
 import random
 import sklearn as sklearn
 from sklearn import preprocessing
-from sklearn import linear_model, datasets
-from sklearn.feature_extraction import DictVectorizer
+from sklearn.feature_extraction import DictVectorizer as DV
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LinearRegression
@@ -39,9 +31,11 @@ from sklearn.grid_search import GridSearchCV
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.linear_model import SGDClassifier
 from sklearn.datasets import make_hastie_10_2
+from sklearn.preprocessing import OneHotEncoder
+
+
+
 
 
 train  = pd.read_csv('train.csv')
@@ -54,7 +48,6 @@ train.drop('FOLLOW',axis=1, inplace=True)
 train.drop('ACCOUNT_NAME',axis=1, inplace=True)
 train.drop('ACCOUNT_ID',axis=1, inplace=True)
 train.drop('SCREEN_NAME',axis=1, inplace=True)
-train.drop('VERIFIED',axis=1, inplace=True)
 train.drop('NOTIFICATIONS',axis=1, inplace=True)
 train.drop('PROTECTED',axis=1, inplace=True)
 
@@ -62,16 +55,9 @@ train.drop('PROTECTED',axis=1, inplace=True)
 
 
 X_train = train
-#X_test = test
-
 columns = train.columns
-#test_ind =test.index
-
 X_train = np.array(X_train)
-#X_test = np.array(X_test)
-
 X_train = X_train.astype(float)
-#X_test = X_test.astype(float)
 
 
                         ########################
@@ -82,14 +68,14 @@ X_train = X_train.astype(float)
       
 
 DO_LABELENCODE_CATEGORIES = True
+DO_ONEHOTENCODE = False
 DO_Train_Test_Split = True
 DO_LR = False
 DO_LOG = False
 DO_KNN = False
 DO_RF = False
-DO_GBR = False
+DO_GBR = True
 DO_ADA = False
-
 
 DO_SUBMIT = False
 
@@ -113,9 +99,21 @@ if DO_LABELENCODE_CATEGORIES:
         #print ("X_test.shape new",X_test.shape)
         #print (idx.shape)
 
+    #One Hot Encoder
+
+if DO_ONEHOTENCODE:
+  
+    #First one hot and make a pandas df
+    dat_dict=X_train.T.to_dict().values()
+    vectorizer = DV( sparse = False )
+    vectorizer.fit(dat_dict)
+    X_train= vectorizer.transform(dat_dict)
+    X_train=pd.DataFrame(X_train)
+
+
+    
     
 X_train = X_train.astype(float)
-#X_test = X_test.astype(float)
 
 
    # print_Separador()
@@ -182,70 +180,21 @@ if DO_KNN:
         #print (metrics.f1_score(y_testing, y_pred))
 
 
-
-
-
+'''
+    #LinearRegression
+if DO_LR:
+    
+    
 
     #LogisticRegression
 if DO_LOG:
-    h = .02  # step size in the mesh
-    logreg = linear_model.LogisticRegression(C=1e5)
-    logreg.fit(X_training,y_training)
-    # Plot the decision boundary. For that, we will assign a color to each
-    # point in the mesh [x_min, m_max]x[y_min, y_max].
-    x_min, x_max = X_training[:, 0].min() - .5, X_training[:, 0].max() + .5
-    y_min, y_max = X_training[:, 1].min() - .5, X_training[:, 1].max() + .5
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
-    Z = logreg.predict(np.c_[xx.ravel(), yy.ravel()])
-    
-    # Put the result into a color plot
-    Z = Z.reshape(xx.shape)
-    plt.figure(1, figsize=(4, 3))
-    plt.pcolormesh(xx, yy, Z, cmap=plt.cm.Paired)
-    
-    # Plot also the training points
-    plt.scatter(X_training[:, 0], X_training[:, 1], c=y_training, edgecolors='k', cmap=plt.cm.Paired)
-    plt.xlabel('Sepal length')
-    plt.ylabel('Sepal width')
-    
-    plt.xlim(xx.min(), xx.max())
-    plt.ylim(yy.min(), yy.max())
-    plt.xticks(())
-    plt.yticks(())
-    
-    plt.show()
     
     
-    
-
 
     #AdaBoost
 if DO_ADA:
-    ada = sklearn.ensemble.AdaBoostClassifier(base_estimator=None, n_estimators=50, learning_rate=1.0, algorithm='SAMME.R', random_state=None)
-    ada.fit(X_training,y_training)
-    y_pred = ada.predict(X_testing)
-    #print(ada.predict(X_testing))
-    print(metrics.accuracy_score(y_testing,y_pred))
-
-
-'''
-
-    #LinearRegression
-if DO_LR:
-
-    clf = SGDClassifier(loss="hinge", penalty="l2")
-    clf.fit(X_training, y_training)
-    SGDClassifier(alpha=0.0001, average=False, class_weight=None, epsilon=0.1,
-       eta0=0.0, fit_intercept=True, l1_ratio=0.15,
-       learning_rate='optimal', loss='hinge', n_iter=5, n_jobs=1,
-       penalty='l2', power_t=0.5, random_state=None, shuffle=True,
-       verbose=0, warm_start=False)
-       loss="modified_huber"
-  
     
- 
-    print (metrics.accuracy_score(y_testing, y_pred))
-
+'''
 
 import numpy as np       
 def Gini(y_testing, y_pred):
@@ -271,5 +220,3 @@ def Gini(y_testing, y_pred):
     # normalize to true Gini coefficient
     return G_pred/G_testing
     Gini(y_testing, y_pred)
-    
-    '''
