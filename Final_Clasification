@@ -1,0 +1,146 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Sep 11 14:53:19 2015
+
+@author: Stef
+"""
+
+
+import pandas as pd
+import numpy as np 
+import seaborn as sns
+from pylab import savefig
+import matplotlib.pyplot as plt
+import random
+import sklearn as sklearn
+from sklearn import preprocessing
+from sklearn.feature_extraction import DictVectorizer
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn import metrics
+from sklearn.feature_extraction import DictVectorizer as DV
+from sklearn.preprocessing import StandardScaler
+from sklearn.grid_search import GridSearchCV,RandomizedSearchCV
+from scipy.stats import randint, uniform
+from sklearn.metrics import mean_squared_error
+from sklearn.datasets import load_boston
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.grid_search import GridSearchCV
+from sklearn.cross_validation import train_test_split
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.datasets import make_hastie_10_2
+
+
+train  = pd.read_csv('train.csv')
+test = pd.read.csv('test.csv')
+
+#print (train.head())
+
+
+y = train.FOLLOW
+train.drop('FOLLOW',axis=1, inplace=True)
+train.drop('ACCOUNT_NAME',axis=1, inplace=True)
+train.drop('ACCOUNT_ID',axis=1, inplace=True)
+train.drop('SCREEN_NAME',axis=1, inplace=True)
+train.drop('NOTIFICATIONS',axis=1, inplace=True)
+train.drop('PROTECTED',axis=1, inplace=True)
+
+test.drop('FOLLOW',axis=1, inplace=True)
+test.drop('ACCOUNT_NAME',axis=1, inplace=True)
+test.drop('ACCOUNT_ID',axis=1, inplace=True)
+test.drop('SCREEN_NAME',axis=1, inplace=True)
+test.drop('NOTIFICATIONS',axis=1, inplace=True)
+test.drop('PROTECTED',axis=1, inplace=True)
+
+
+X_train = train
+X_test = test
+
+columns = train.columns
+test_ind =test.index
+
+X_train = np.array(X_train)
+X_test = np.array(X_test)
+
+X_train = X_train.astype(float)
+
+X_test = X_test.astype(float)
+
+
+                        ########################
+                        #                      #
+                        #       Variables      #
+                        #                      #
+                        ########################    
+      
+
+DO_LABELENCODE_CATEGORIES = True
+DO_GBR = True
+
+DO_SUBMIT = True
+
+
+
+    #Labelencode
+
+
+if DO_LABELENCODE_CATEGORIES:
+    # label encode the categorical variables
+
+    for i in range(X_train.shape[1]):
+        if type(X_train[1,i]) is str:
+            lbl = preprocessing.LabelEncoder()
+            lbl.fit(list(X_train[:,i]) )            # list(X_test[:,i]))
+            X_train[:,i] = lbl.transform(X_train[:,i])
+            #X_test[:,i] = lbl.transform(X_test[:,i])
+                
+        #print ("y.shape",y.shape)
+        #print ("X_train.shape",X_train.shape)
+        #print ("X_test.shape new",X_test.shape)
+        #print (idx.shape)
+
+    
+X_train = X_train.astype(float)
+X_test = X_test.astype(float)
+
+
+   # print_Separador()
+
+
+                        ########################
+                        #                      #
+                        #       Classific      #
+                        #                      #
+                        ########################  
+
+
+    #GradientBoost
+if DO_GBR:
+    #X, y = make_hastie_10_2(random_state=0)
+    clf = sklearn.ensemble.GradientBoostingClassifier(loss='deviance', learning_rate=0.1, n_estimators=100, subsample=1.0, min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_depth=3, init=None, random_state=None, max_features=None, verbose=0, max_leaf_nodes=None, warm_start=False)
+    #clf = GradientBoostingRegressor(n_estimators = 100, learning_rate = 1, max_depth =2, random_state = 0, verbose = 0, min_samples_leaf=5)   
+    clf.fit(X_train,y)
+    y_pred = clf.predict(X_test)
+    print (y_pred)
+
+
+
+            ########################
+            #                      #
+            #     Submission       #
+            #                      #
+            ########################
+
+if DO_SUBMIT:
+    
+    total = y_pred
+    preds = pd.DataFrame({"Id": test_ind, "FOLLOW": total})
+    preds = preds.set_index('Id')
+    preds.to_csv('Prediction_benchmark.csv')
+    
+    print('Submission_Done')
+
